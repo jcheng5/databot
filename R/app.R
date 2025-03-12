@@ -30,7 +30,7 @@ chat <- function() {
     chat <- chat_bot()
     start_chat_request <- function(user_input) {
       stream <- chat$stream_async(user_input)
-      chat_append("chat", stream) |> promises::finally(~ {
+      promises::finally(chat_append("chat", stream), ~ {
         tokens <- chat$tokens(include_system_prompt = FALSE)
         input <- sum(tokens$tokens[tokens$role == "user"])
         output <- sum(tokens$tokens[tokens$role == "assistant"])
