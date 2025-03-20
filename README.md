@@ -38,6 +38,5 @@ pak::pak("jcheng5/databot")
 ## Limitations
 
 - Pretty fragile currently; if the Shiny app greys out, there is no way to recover the current chat session. Same if an Anthropic API call errors out for some reason on their end (such as being bounced due to too much traffic on their end).
-- No [HTML Widget](https://htmlwidgets.org) support at this time, so no Plotly, Leaflet, DT, etc.
 - When generating a report, there's not much progress indication currently.
 - Context limits: Databot currently does nothing to manage the size of the conversation, which if you chat long enough, will eventually exceed the model's input token limits. After each interaction, a token count is emitted in the R console, which you can keep an eye on to see if you're getting close. The input token limit is 200K (for Claude 3.5 Sonnet).

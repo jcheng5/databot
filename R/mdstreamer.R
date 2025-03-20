@@ -23,18 +23,16 @@ MarkdownStreamer <- R6::R6Class("MarkdownStreamer",
     #' @param ensure_newline_after Ensure text ends with a newline
     md = function(text, ensure_newline_before = FALSE, ensure_newline_after = FALSE) {
       # Validate inputs
-      if (!is.character(text)) {
-        abort("`text` must be a character vector")
-      }
-      
-      # Skip empty text
-      if (length(text) == 0 || all(text == "")) {
-        return(invisible(self))
-      }
-      
-      # Collapse multi-line text
-      if (length(text) > 1) {
-        text <- paste(text, collapse = "\n")
+      if (is.character(text)) {
+          # Skip empty text
+          if (length(text) == 0 || all(text == "")) {
+            return(invisible(self))
+          }
+    
+          # Collapse multi-line text
+          if (length(text) > 1) {
+            text <- paste(text, collapse = "\n")
+          }
       }
       
       # Close code block if needed
@@ -108,6 +106,13 @@ MarkdownStreamer <- R6::R6Class("MarkdownStreamer",
     #' @param ensure_newline_before Ensure text starts with a newline
     #' @param ensure_newline_after Ensure text ends with a newline
     send = function(text, ensure_newline_before = FALSE, ensure_newline_after = FALSE) {
+      if (!is.character(text)) {
+        private$callback(text)
+        if (private$empty) {
+          private$empty <- FALSE
+        }
+        return()
+      }
       # Check if text begins with a newline
       text_begins_with_newline <- grepl("^\n", text)
       
