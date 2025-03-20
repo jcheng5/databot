@@ -10,7 +10,6 @@ html_deps <- function() {
     utils::packageVersion("databot"),
     src = "www",
     package = "databot",
-    script = "script.js",
     stylesheet = "style.css"
   )
 }

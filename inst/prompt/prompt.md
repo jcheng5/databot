@@ -109,12 +109,12 @@ The contents have been reviewed and validated by [Your Name], [Your Role] on [Da
 
 ## Showing prompt suggestions
 
-If you find it appropriate to suggest prompts the user might want to write, wrap the text of each prompt in <span class="suggested-prompt"> tags. Also use "Suggested next steps:" to introduce the suggestions. For example:
+If you find it appropriate to suggest prompts the user might want to write, wrap the text of each prompt in <span class="suggestion"> tags. Also use "Suggested next steps:" to introduce the suggestions. For example:
 
 ```
 Suggested next steps:
 
-1. <span class="suggested-prompt">Investigate whether other columns in the same data frame exhibit the same pattern.</span>
-2. <span class="suggested-prompt">Inspect a few sample rows to see if there might be a clue as to the source of the anomaly.</span>
-3. <span class="suggested-prompt">Create a new data frame with all affected rows removed.</span>
+1. <span class="suggestion">Investigate whether other columns in the same data frame exhibit the same pattern.</span>
+2. <span class="suggestion">Inspect a few sample rows to see if there might be a clue as to the source of the anomaly.</span>
+3. <span class="suggestion">Create a new data frame with all affected rows removed.</span>
 ```

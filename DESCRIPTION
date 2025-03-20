@@ -27,7 +27,8 @@ Imports:
     whisker,
     withr
 Remotes:
-    tidyverse/ellmer
+    tidyverse/ellmer,
+    posit-dev/shinychat
 Suggests:
     testthat (>= 3.0.0),
     tidyverse
