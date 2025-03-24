@@ -14,6 +14,13 @@ html_deps <- function() {
   )
 }
 
+# I haven't looked into exactly why this is, but in order for htmlwidgets to work, 
+# we need it's dependencies on the page. What's extra odd about this is that it 
+# doesn't appear to be an issue for shinychat apps in general??
+htmlwidget_deps <- function() {
+  htmltools::findDependencies(htmlwidgets::shinyWidgetOutput("foo", "bar", NULL, NULL))
+}
+
 #' Runs databot
 #' 
 #' @export
@@ -22,6 +29,7 @@ chat <- function() {
 
   ui <- page_fillable(
     html_deps(),
+    htmlwidgets_deps(),
     chat_ui("chat", fill = TRUE, height = "100%", width = "100%")
   )
 

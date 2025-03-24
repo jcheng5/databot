@@ -74,6 +74,12 @@ run_r_code <- function(code) {
     out$md(md_tbl, TRUE, TRUE)
   }
 
+  out_tagifiable <- function(tag) {
+    html <- as.character(htmltools::as.tags(tag))
+    result <<- c(result, list(list(type = "text", text = html)))
+    out$md(tag, TRUE, TRUE)
+  }
+
   out_txt <- function(txt, end = NULL) {
     txt <- paste(txt, collapse = "\n")
     if (txt == "") {
@@ -98,7 +104,8 @@ run_r_code <- function(code) {
         on_console_out = out_txt,
         on_console_err = out_txt,
         on_plot = out_img,
-        on_dataframe = out_df
+        on_dataframe = out_df,
+        on_tagifiable = out_tagifiable
       )    
     })
   } else {
@@ -107,7 +114,8 @@ run_r_code <- function(code) {
       on_console_out = out_txt,
       on_console_err = out_txt,
       on_plot = out_img,
-      on_dataframe = out_df
+      on_dataframe = out_df,
+      on_tagifiable = out_tagifiable
     )  
   }
 

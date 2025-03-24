@@ -2,10 +2,17 @@
 #' @param code Character string containing R code to evaluate
 #' @return List containing structured output information
 #' @noRd
-evaluate_r_code <- function(code, on_console_out, on_console_err, on_plot, on_dataframe) {
+evaluate_r_code <- function(
+  code,
+  on_console_out,
+  on_console_err,
+  on_plot,
+  on_dataframe,
+  on_tagifiable
+) {
   cat("Running code...\n")
   cat(code, "\n", sep = "")
-  
+
   # Evaluate the code and capture all outputs
   evaluate::evaluate(
     code,
@@ -33,6 +40,8 @@ evaluate_r_code <- function(code, on_console_out, on_console_err, on_plot, on_da
         # Find the appropriate S3 method for `print` using class(value)
         if (is.data.frame(value)) {
           on_dataframe(value)
+        } else if (is_shiny_tag(value)) {
+          on_tagifiable(value)
         } else {
           printed_str <- as_str(utils::capture.output(print(value)))
           if (nchar(printed_str) > 0 && !grepl("\n$", printed_str)) {
@@ -45,6 +54,11 @@ evaluate_r_code <- function(code, on_console_out, on_console_err, on_plot, on_da
   )
   invisible()
 }
+
+is_shiny_tag <- function(tag) {
+  inherits(tag, c("shiny.tag", "shiny.tag.list", "htmlwidget"))
+}
+
 
 #' Save a recorded plot to base64 encoded PNG
 #' 
