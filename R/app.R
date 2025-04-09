@@ -69,7 +69,7 @@ chat <- function(new_session = FALSE) {
     start_chat_request <- function(user_input) {
       # For local debugging
       if (interactive()) {
-        globals$last_chat <<- chat
+        globals$last_chat <- chat
       }
 
       prefix <- if (restored_since_last_turn) {

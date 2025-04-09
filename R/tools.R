@@ -24,6 +24,10 @@ create_quarto_report <- function(filename, content) {
 # @returns The results of the evaluation
 # @noRd
 run_r_code <- function(code) {
+  # Try hard to suppress ANSI terminal formatting characters
+  withr::local_envvar(NO_COLOR = 1)
+  withr::local_options(rlib_interactive = FALSE, rlang_interactive = FALSE)
+
   if (in_shiny()) {
     out <- MarkdownStreamer$new(function(md_text) {
       save_output_chunk(md_text)
@@ -129,9 +133,44 @@ run_r_code <- function(code) {
     )
   }
 
+  result <- coalesce_text_outputs(result)
+
   I(result)
 }
 
 in_shiny <- function() {
   !is.null(shiny::getDefaultReactiveDomain())
+}
+
+# Combine consecutive text outputs into one, for better readability (for both us
+# and the model).
+coalesce_text_outputs <- function(content_list) {
+  txt_buffer <- character(0)
+  result_content_list <- list()
+
+  flush_buffer <- function() {
+    if (length(txt_buffer) > 0) {
+      result_content_list <<- c(
+        result_content_list,
+        list(list(type = "text", text = paste(txt_buffer, collapse = "\n")))
+      )
+      txt_buffer <<- character(0)
+    }
+  }
+
+  for (content in content_list) {
+    if (content[["type"]] == "text") {
+      if (nzchar(content[["text"]])) {
+        txt_buffer <- c(txt_buffer, content[["text"]])
+      }
+    } else {
+      flush_buffer()
+      result_content_list <- c(result_content_list, content)
+    }
+  }
+  if (length(txt_buffer) > 0) {
+    flush_buffer()
+  }
+
+  result_content_list
 }
