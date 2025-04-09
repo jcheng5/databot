@@ -30,7 +30,7 @@ test_that("code() accepts character vectors of length > 1", {
   
   ms$code(c("def hello():", "    print('Hello')", "    return True"))
   
-  expect_equal(output, "\n```\ndef hello():\n    print('Hello')\n    return True")
+  expect_equal(output, "\n``````\ndef hello():\n    print('Hello')\n    return True")
 })
 
 test_that("empty strings are a no-op regardless of vector length", {
@@ -60,7 +60,7 @@ test_that("code() formats code blocks correctly", {
   
   ms$code("print('hello')")
   
-  expect_equal(output, "\n```\nprint('hello')")
+  expect_equal(output, "\n``````\nprint('hello')")
 })
 
 test_that("consecutive code() calls result in one code block", {
@@ -70,7 +70,7 @@ test_that("consecutive code() calls result in one code block", {
   ms$code("line 1")
   ms$code("line 2")
   
-  expect_equal(output, "\n```\nline 1line 2")
+  expect_equal(output, "\n``````\nline 1line 2")
 })
 
 test_that("code blocks get closed when switching to md()", {
@@ -80,7 +80,7 @@ test_that("code blocks get closed when switching to md()", {
   ms$code("code")
   ms$md("text")
   
-  expect_equal(output, "\n```\ncode\n```\ntext")
+  expect_equal(output, "\n``````\ncode\n``````\ntext")
 })
 
 test_that("close() closes code blocks", {
@@ -90,7 +90,7 @@ test_that("close() closes code blocks", {
   ms$code("code")
   ms$close()
   
-  expect_equal(output, "\n```\ncode\n```\n")
+  expect_equal(output, "\n``````\ncode\n``````\n")
 })
 
 test_that("ensure_newline_before adds newlines when needed", {
@@ -137,5 +137,5 @@ test_that("chaining works", {
   
   ms$md("text")$code("code")$md("more text")
   
-  expect_equal(output, "text\n```\ncode\n```\nmore text")
+  expect_equal(output, "text\n``````\ncode\n``````\nmore text")
 })
