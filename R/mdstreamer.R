@@ -75,7 +75,10 @@ MarkdownStreamer <- R6::R6Class("MarkdownStreamer",
           # Make sure to double-newline from previous content. The leading "\n"
           # is one, while private$send(ensure_newline_before=TRUE) provides the
           # other.
-          "\n```\n"
+          #
+          # Also, use plenty of ticks, so that if we emit some Markdown that
+          # contains code blocks, it's less likely to interfere with our fence.
+          "\n``````\n"
         ), TRUE, FALSE)
         private$in_code_block <- TRUE
       }
@@ -135,7 +138,7 @@ MarkdownStreamer <- R6::R6Class("MarkdownStreamer",
     #' @description
     #' Close a code block with proper formatting
     close_code_block = function() {
-      private$send("```\n", TRUE, FALSE)
+      private$send("``````\n", TRUE, FALSE)
       private$in_code_block <- FALSE
     }
   )
