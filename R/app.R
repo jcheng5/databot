@@ -66,6 +66,9 @@ chat <- function(new_session = FALSE) {
 
     chat <- chat_bot(default_turns = globals$turns)
     start_chat_request <- function(user_input) {
+      # For local debugging
+      .last_chat <<- chat
+      
       prefix <- if (restored_since_last_turn) {
         paste0(
           "(Continuing previous chat session. The R environment may have ",
@@ -97,17 +100,19 @@ chat <- function(new_session = FALSE) {
         ) |>
         promises::finally(
           ~ {
-            tokens <- chat$tokens(include_system_prompt = FALSE)
-            input <- sum(tokens$tokens[tokens$role == "user"])
-            output <- sum(tokens$tokens[tokens$role == "assistant"])
+            tokens <- chat$get_tokens()
+            last_input <- tail(tokens[tokens$role == "user", "tokens_total"], 1)
+            last_output <- tail(tokens[tokens$role == "assistant", "tokens_total"], 1)
+            total_input <- sum(tokens[tokens$role == "user", "tokens_total"])
+            total_output <- sum(tokens[tokens$role == "assistant", "tokens_total"])
 
             cat("\n")
-            cat(rule("Turn ", nrow(tokens) / 2), "\n", sep = "")
-            cat("Total input tokens:  ", input, "\n", sep = "")
-            cat("Total output tokens: ", output, "\n", sep = "")
-            cat("Total tokens:        ", input + output, "\n", sep = "")
+            cat(rule("Turn ", nrow(tokens)), "\n", sep = "")
+            cat("Input tokens:  ", last_input, "\n", sep = "")
+            cat("Output tokens: ", last_output, "\n", sep = "")
+            cat("Total input tokens:  ", total_input, "\n", sep = "")
+            cat("Total output tokens: ", total_output, "\n", sep = "")
             cat("\n")
-            .last_chat <<- chat
           }
         )
     }

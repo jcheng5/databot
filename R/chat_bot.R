@@ -6,7 +6,6 @@ chat_bot <- function(system_prompt = NULL, default_turns = list()) {
     chat <- chat_bedrock(
       system_prompt,
       model = bedrock_model,
-      turns = default_turns,
       echo = FALSE
     )
   } else {
@@ -19,14 +18,14 @@ chat_bot <- function(system_prompt = NULL, default_turns = list()) {
       ))
     }
 
-    chat <- chat_claude(
+    chat <- chat_anthropic(
       system_prompt,
       model = "claude-3-5-sonnet-latest",
-      turns = default_turns,
       echo = FALSE,
       api_key = api_key
     )
   }
+  chat$set_turns(default_turns)
   
   chat$register_tool(tool(
     run_r_code,
