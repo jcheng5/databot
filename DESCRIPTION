@@ -10,6 +10,7 @@ RoxygenNote: 7.3.2
 Imports: 
     base64enc,
     bslib,
+    coro,
     ellmer (>= 0.1.1.9000),
     evaluate,
     here,

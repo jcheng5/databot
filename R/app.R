@@ -2,6 +2,7 @@
 #' @import bslib
 #' @import ellmer
 #' @import shinychat
+#' @importFrom utils head tail
 NULL
 
 html_deps <- function() {
@@ -67,8 +68,10 @@ chat <- function(new_session = FALSE) {
     chat <- chat_bot(default_turns = globals$turns)
     start_chat_request <- function(user_input) {
       # For local debugging
-      .last_chat <<- chat
-      
+      if (interactive()) {
+        globals$last_chat <<- chat
+      }
+
       prefix <- if (restored_since_last_turn) {
         paste0(
           "(Continuing previous chat session. The R environment may have ",
@@ -134,6 +137,7 @@ globals <- new.env(parent = emptyenv())
 globals$turns <- NULL
 globals$ui_messages <- fastmap::fastqueue()
 globals$pending_output <- fastmap::fastqueue()
+globals$last_chat <- NULL
 
 reset_state <- function() {
   globals$turns <- NULL
@@ -172,4 +176,8 @@ save_stream_output <- function() {
       coro::yield(chunk)
     }
   })
+}
+
+last_chat <- function() {
+  globals$last_chat
 }

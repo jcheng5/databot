@@ -1,3 +1,9 @@
+#' @title MarkdownStreamer Object
+#' 
+#' @description
+#' Used to stream Markdown text to a callback function. It coalesces multiple
+#' code blocks into a single block and handles newlines intelligently.
+#' @noRd
 MarkdownStreamer <- R6::R6Class("MarkdownStreamer",
   public = list(
     #' @description
@@ -105,11 +111,11 @@ MarkdownStreamer <- R6::R6Class("MarkdownStreamer",
     last_ends_with_newline = TRUE,
     empty = TRUE,
     
-    #' @description
-    #' Send text to the callback and update state
-    #' @param text Text to send
-    #' @param ensure_newline_before Ensure text starts with a newline
-    #' @param ensure_newline_after Ensure text ends with a newline
+    # @description
+    # Send text to the callback and update state
+    # @param text Text to send
+    # @param ensure_newline_before Ensure text starts with a newline
+    # @param ensure_newline_after Ensure text ends with a newline
     send = function(text, ensure_newline_before = FALSE, ensure_newline_after = FALSE) {
       # Check if text begins with a newline
       text_begins_with_newline <- grepl("^\n", text)
@@ -135,8 +141,8 @@ MarkdownStreamer <- R6::R6Class("MarkdownStreamer",
       }
     },
     
-    #' @description
-    #' Close a code block with proper formatting
+    # @description
+    # Close a code block with proper formatting
     close_code_block = function() {
       private$send("``````\n", TRUE, FALSE)
       private$in_code_block <- FALSE
