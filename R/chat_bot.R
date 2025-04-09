@@ -1,21 +1,33 @@
 chat_bot <- function(system_prompt = NULL, default_turns = list()) {
   system_prompt <- system_prompt %||% databot_prompt()
 
-  api_key <- Sys.getenv("DATABOT_API_KEY", Sys.getenv("ANTHROPIC_API_KEY", ""))
-  if (api_key == "") {
-    abort(paste(
-      "No API key found;",
-      "please set DATABOT_API_KEY or ANTHROPIC_API_KEY env var"
-    ))
-  }
+  bedrock_model <- Sys.getenv("DATABOT_BEDROCK_MODEL", "")
+  if (nzchar(bedrock_model)) {
+    chat <- chat_bedrock(
+      system_prompt,
+      model = bedrock_model,
+      turns = default_turns,
+      echo = FALSE
+    )
+  } else {
 
-  chat <- chat_claude(
-    system_prompt,
-    model = "claude-3-5-sonnet-latest",
-    turns = default_turns,
-    echo = FALSE,
-    api_key = api_key
-  )
+    api_key <- Sys.getenv("DATABOT_API_KEY", Sys.getenv("ANTHROPIC_API_KEY", ""))
+    if (api_key == "") {
+      abort(paste(
+        "No API key found;",
+        "please set DATABOT_API_KEY or ANTHROPIC_API_KEY env var"
+      ))
+    }
+
+    chat <- chat_claude(
+      system_prompt,
+      model = "claude-3-5-sonnet-latest",
+      turns = default_turns,
+      echo = FALSE,
+      api_key = api_key
+    )
+  }
+  
   chat$register_tool(tool(
     run_r_code,
     "Executes R code in the current session",
