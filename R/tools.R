@@ -165,7 +165,7 @@ coalesce_text_outputs <- function(content_list) {
       }
     } else {
       flush_buffer()
-      result_content_list <- c(result_content_list, content)
+      result_content_list <- c(result_content_list, list(content))
     }
   }
   if (length(txt_buffer) > 0) {
