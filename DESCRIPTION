@@ -11,7 +11,7 @@ Imports:
     base64enc,
     bslib,
     coro,
-    ellmer (>= 0.1.1.9000),
+    ellmer (>= 0.1.1.9001),
     evaluate,
     here,
     htmltools,
@@ -28,7 +28,7 @@ Imports:
     whisker,
     withr
 Remotes:
-    tidyverse/ellmer,
+    tidyverse/ellmer#503,
     posit-dev/shinychat/pkg-r
 Suggests:
     testthat (>= 3.0.0),
