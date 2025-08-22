@@ -138,11 +138,13 @@ globals$turns <- NULL
 globals$ui_messages <- fastmap::fastqueue()
 globals$pending_output <- fastmap::fastqueue()
 globals$last_chat <- NULL
+globals$pending_image <- NULL
 
 reset_state <- function() {
   globals$turns <- NULL
   globals$ui_messages$reset()
   globals$pending_output$reset()
+  globals$pending_image <- NULL
   invisible()
 }
 
@@ -168,12 +170,77 @@ take_pending_output <- function() {
 save_stream_output <- function() {
   coro::async_generator(function(stream) {
     session <- getDefaultReactiveDomain()
+    buffer <- ""
+    in_insight <- FALSE
+    insight_content <- ""
+    
     for (chunk in coro::await_each(stream)) {
       if (session$isClosed()) {
         req(FALSE)
       }
       save_output_chunk(chunk)
-      coro::yield(chunk)
+      
+      buffer <- paste0(buffer, chunk)
+      
+      while (nchar(buffer) > 0) {
+        if (!in_insight) {
+          if (grepl("<insight>", buffer)) {
+            match <- regexpr("<insight>", buffer)
+            before <- substr(buffer, 1, match[1] - 1)
+            
+            if (nchar(before) > 0) {
+              coro::yield(before)
+            }
+            
+            if (!is.null(globals$pending_image)) {
+              coro::yield(paste0(
+                '<div class="summary-insight">',
+                globals$pending_image,
+                '<div class="insight-text">'
+              ))
+              globals$pending_image <- NULL
+            } else {
+              coro::yield('<div class="summary-insight"><div class="insight-text">')
+            }
+            
+            buffer <- substr(buffer, match[1] + 9, nchar(buffer))
+            in_insight <- TRUE
+            insight_content <- ""
+          } else {
+            if (nchar(buffer) > 0) {
+              coro::yield(buffer)
+            }
+            buffer <- ""
+          }
+        } else {
+          if (grepl("</insight>", buffer)) {
+            match <- regexpr("</insight>", buffer)
+            content_before_close <- substr(buffer, 1, match[1] - 1)
+            
+            if (nchar(content_before_close) > 0) {
+              coro::yield(content_before_close)
+            }
+            
+            coro::yield('</div></div>')
+            
+            buffer <- substr(buffer, match[1] + 10, nchar(buffer))
+            in_insight <- FALSE
+          } else {
+            if (nchar(buffer) > 0) {
+              coro::yield(buffer)
+            }
+            buffer <- ""
+          }
+        }
+      }
+    }
+    
+    if (nchar(buffer) > 0) {
+      coro::yield(buffer)
+    }
+    
+    if (in_insight) {
+      coro::yield('</div></div>')
     }
   })
 }

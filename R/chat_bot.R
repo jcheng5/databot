@@ -31,7 +31,8 @@ chat_bot <- function(system_prompt = NULL, default_turns = list()) {
     run_r_code,
     "Executes R code in the current session",
     arguments = list(
-      code = type_string("R code to execute")
+      code = type_string("R code to execute"),
+      `_intent` = type_string("Brief 2-4 word description of what this code does, e.g. 'Loading data', 'Plotting distribution', 'Calculating summary'")
     )
   ))
   chat$register_tool(tool(

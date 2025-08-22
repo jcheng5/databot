@@ -21,27 +21,38 @@ create_quarto_report <- function(filename, content) {
 # Executes R code in the current session
 #
 # @param code R code to execute
+# @param _intent Brief description of what the code does
 # @returns The results of the evaluation
 # @noRd
-run_r_code <- function(code) {
+run_r_code <- function(code, `_intent` = "View code and full output") {
   # Try hard to suppress ANSI terminal formatting characters
   withr::local_envvar(NO_COLOR = 1)
   withr::local_options(rlib_interactive = FALSE, rlang_interactive = FALSE)
 
-  if (in_shiny()) {
-    out <- MarkdownStreamer$new(function(md_text) {
-      save_output_chunk(md_text)
-      chat_append_message(
-        "chat",
-        list(role = "assistant", content = md_text),
-        chunk = TRUE,
-        operation = "append"
+  `_intent` <- paste0(c(`_intent`, "..."), collapse = "")
+  markdown_output <- character()
+  image_output <- NULL
+  
+  out <- MarkdownStreamer$new(function(md_text) {
+    markdown_output <<- c(markdown_output, md_text)
+  })
+  on.exit({
+    out$close()
+    
+    if (in_shiny() && length(markdown_output) > 0) {
+      formatted_output <- htmltools::tagList(
+        htmltools::tags$details(
+          htmltools::tags$summary(`_intent`),
+          htmltools::HTML(paste(markdown_output, collapse = ""))
+        )
       )
-    })
-  } else {
-    out <- NullStreamer$new()
-  }
-  on.exit(out$close(), add = TRUE, after = FALSE)
+      
+      chat_append_message("chat", list(
+        role = "assistant",
+        content = as.character(formatted_output)
+      ))
+    }
+  }, add = TRUE, after = FALSE)
 
   # What gets returned to the LLM
   result <- list()
@@ -58,11 +69,9 @@ run_r_code <- function(code) {
         )
       ))
     )
-    out$md(
-      sprintf("![Plot](data:%s;base64,%s)\n\n", media_type, b64data),
-      TRUE,
-      FALSE
-    )
+    img_markdown <- sprintf("![Plot](data:%s;base64,%s)\n\n", media_type, b64data)
+    out$md(img_markdown, TRUE, FALSE)
+    image_output <<- sprintf('<img src="data:%s;base64,%s" alt="Plot">', media_type, b64data)
   }
 
   out_df <- function(df) {
@@ -134,7 +143,11 @@ run_r_code <- function(code) {
   }
 
   result <- coalesce_text_outputs(result)
-
+  
+  if (in_shiny() && !is.null(image_output)) {
+    globals$pending_image <- image_output
+  }
+  
   I(result)
 }
 
@@ -142,8 +155,6 @@ in_shiny <- function() {
   !is.null(shiny::getDefaultReactiveDomain())
 }
 
-# Combine consecutive text outputs into one, for better readability (for both us
-# and the model).
 coalesce_text_outputs <- function(content_list) {
   txt_buffer <- character(0)
   result_content_list <- list()

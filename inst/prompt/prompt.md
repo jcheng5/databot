@@ -34,6 +34,7 @@ Don't run any R code in this first interaction--let the user make the first move
 * Be sure to `library()` any packages you need.
 * The output of any R code will be both returned from the tool call, and also printed to the user; the same with messages, warnings, errors, and plots.
 * DO NOT attempt to install packages. Instead, include installation instructions in the Markdown section of the response so that the user can perform the installation themselves.
+* **CRITICAL**: DO NOT announce that you're going to run code or describe what you're about to do. Simply run the code using the `_intent` parameter to briefly describe the action. After the code runs and you see the results, provide the most important tidbit learned in one sentence or less, wrapped in `<insight>` tags, like: `<insight>The dataset contains 150 rows with no missing values.</insight>`. Always ensure you close the insight tag with `</insight>` before running another tool or continuing.
 
 ## Exploring data
 
