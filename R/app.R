@@ -169,6 +169,8 @@ save_stream_output <- function() {
   coro::async_generator(function(stream) {
     session <- getDefaultReactiveDomain()
     buffer <- ""
+    in_insight <- FALSE
+    insight_content <- ""
     
     for (chunk in coro::await_each(stream)) {
       if (session$isClosed()) {
@@ -178,48 +180,56 @@ save_stream_output <- function() {
       
       buffer <- paste0(buffer, chunk)
       
-      # Check if we have a complete insight tag
-      while (grepl("<insight>.*?</insight>", buffer)) {
-        # Find the first complete insight tag
-        match <- regexpr("<insight>.*?</insight>", buffer)
-        before <- substr(buffer, 1, match[1] - 1)
-        insight_full <- substr(buffer, match[1], match[1] + attr(match, "match.length") - 1)
-        after <- substr(buffer, match[1] + attr(match, "match.length"), nchar(buffer))
-        
-        # Extract insight text
-        insight_text <- gsub("<insight>(.*?)</insight>", "\\1", insight_full)
-        
-        # Create formatted HTML
-        insight_html <- paste0(
-          '<div class="summary-insight">',
-          '<i class="bi bi-lightbulb"></i>',
-          '<span>', insight_text, '</span>',
-          '</div>'
-        )
-        
-        # Yield the before text and insight
-        if (nchar(before) > 0) {
-          coro::yield(before)
+      while (nchar(buffer) > 0) {
+        if (!in_insight) {
+          if (grepl("<insight>", buffer)) {
+            match <- regexpr("<insight>", buffer)
+            before <- substr(buffer, 1, match[1] - 1)
+            
+            if (nchar(before) > 0) {
+              coro::yield(before)
+            }
+            
+            coro::yield('<div class="summary-insight"><i class="bi bi-lightbulb"></i><span>')
+            
+            buffer <- substr(buffer, match[1] + 9, nchar(buffer))
+            in_insight <- TRUE
+            insight_content <- ""
+          } else {
+            if (nchar(buffer) > 0) {
+              coro::yield(buffer)
+            }
+            buffer <- ""
+          }
+        } else {
+          if (grepl("</insight>", buffer)) {
+            match <- regexpr("</insight>", buffer)
+            content_before_close <- substr(buffer, 1, match[1] - 1)
+            
+            if (nchar(content_before_close) > 0) {
+              coro::yield(content_before_close)
+            }
+            
+            coro::yield('</span></div>')
+            
+            buffer <- substr(buffer, match[1] + 10, nchar(buffer))
+            in_insight <- FALSE
+          } else {
+            if (nchar(buffer) > 0) {
+              coro::yield(buffer)
+            }
+            buffer <- ""
+          }
         }
-        coro::yield(insight_html)
-        
-        # Continue with remaining buffer
-        buffer <- after
-      }
-      
-      # If we have an incomplete insight tag, keep buffering
-      if (grepl("<insight>", buffer) && !grepl("</insight>", buffer)) {
-        # Keep buffering
-      } else if (nchar(buffer) > 0) {
-        # No insight tag started, yield what we have
-        coro::yield(buffer)
-        buffer <- ""
       }
     }
     
-    # Yield any remaining buffer
     if (nchar(buffer) > 0) {
       coro::yield(buffer)
+    }
+    
+    if (in_insight) {
+      coro::yield('</span></div>')
     }
   })
 }

@@ -36,7 +36,6 @@ run_r_code <- function(code) {
   on.exit({
     out$close()
     
-    # Immediately append the collapsible when the tool completes
     if (in_shiny() && length(markdown_output) > 0) {
       formatted_output <- htmltools::tagList(
         htmltools::tags$details(
