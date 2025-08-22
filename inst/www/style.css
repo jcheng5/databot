@@ -3,17 +3,27 @@
 }
 
 .summary-insight {
-  padding: 8px 12px;
+  padding: 8px 12px 8px 28px;
   background: #f0f8ff;
   border-left: 3px solid #2196f3;
-  margin: 8px 0;
+  margin: 8px 0 16px 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  border-radius: 4px;
+  position: relative;
 }
 
-.summary-insight i {
-  color: #2196f3;
+.summary-insight::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  width: 14px;
+  height: 14px;
+  background-image: url('lightbulb-outline.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.5;
 }
 
 details {

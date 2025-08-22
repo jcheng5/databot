@@ -190,7 +190,7 @@ save_stream_output <- function() {
               coro::yield(before)
             }
             
-            coro::yield('<div class="summary-insight"><i class="bi bi-lightbulb"></i><span>')
+            coro::yield('<div class="summary-insight"><span>')
             
             buffer <- substr(buffer, match[1] + 9, nchar(buffer))
             in_insight <- TRUE
