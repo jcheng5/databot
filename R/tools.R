@@ -29,7 +29,9 @@ run_r_code <- function(code, `_intent` = "View code and full output") {
   withr::local_envvar(NO_COLOR = 1)
   withr::local_options(rlib_interactive = FALSE, rlang_interactive = FALSE)
 
+  `_intent` <- paste0(c(`_intent`, "..."), collapse = "")
   markdown_output <- character()
+  image_output <- NULL
   
   out <- MarkdownStreamer$new(function(md_text) {
     markdown_output <<- c(markdown_output, md_text)
@@ -67,11 +69,9 @@ run_r_code <- function(code, `_intent` = "View code and full output") {
         )
       ))
     )
-    out$md(
-      sprintf("![Plot](data:%s;base64,%s)\n\n", media_type, b64data),
-      TRUE,
-      FALSE
-    )
+    img_markdown <- sprintf("![Plot](data:%s;base64,%s)\n\n", media_type, b64data)
+    out$md(img_markdown, TRUE, FALSE)
+    image_output <<- sprintf('<img src="data:%s;base64,%s" alt="Plot">', media_type, b64data)
   }
 
   out_df <- function(df) {
@@ -143,6 +143,10 @@ run_r_code <- function(code, `_intent` = "View code and full output") {
   }
 
   result <- coalesce_text_outputs(result)
+  
+  if (in_shiny() && !is.null(image_output)) {
+    globals$pending_image <- image_output
+  }
   
   I(result)
 }

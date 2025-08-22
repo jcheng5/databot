@@ -138,11 +138,13 @@ globals$turns <- NULL
 globals$ui_messages <- fastmap::fastqueue()
 globals$pending_output <- fastmap::fastqueue()
 globals$last_chat <- NULL
+globals$pending_image <- NULL
 
 reset_state <- function() {
   globals$turns <- NULL
   globals$ui_messages$reset()
   globals$pending_output$reset()
+  globals$pending_image <- NULL
   invisible()
 }
 
@@ -190,7 +192,16 @@ save_stream_output <- function() {
               coro::yield(before)
             }
             
-            coro::yield('<div class="summary-insight"><span>')
+            if (!is.null(globals$pending_image)) {
+              coro::yield(paste0(
+                '<div class="summary-insight">',
+                globals$pending_image,
+                '<div class="insight-text">'
+              ))
+              globals$pending_image <- NULL
+            } else {
+              coro::yield('<div class="summary-insight"><div class="insight-text">')
+            }
             
             buffer <- substr(buffer, match[1] + 9, nchar(buffer))
             in_insight <- TRUE
@@ -210,7 +221,7 @@ save_stream_output <- function() {
               coro::yield(content_before_close)
             }
             
-            coro::yield('</span></div>')
+            coro::yield('</div></div>')
             
             buffer <- substr(buffer, match[1] + 10, nchar(buffer))
             in_insight <- FALSE
@@ -229,7 +240,7 @@ save_stream_output <- function() {
     }
     
     if (in_insight) {
-      coro::yield('</span></div>')
+      coro::yield('</div></div>')
     }
   })
 }

@@ -55,7 +55,7 @@ recorded_plot_to_png <- function(recorded_plot, ...) {
   plot_file <- tempfile(fileext = ".png")
   on.exit(if (plot_file != "" && file.exists(plot_file)) unlink(plot_file))
 
-  grDevices::png(plot_file, ...)
+  grDevices::png(plot_file, width = 800, height = 500, res = 120, ...)
   tryCatch(
     {
       grDevices::replayPlot(recorded_plot)
