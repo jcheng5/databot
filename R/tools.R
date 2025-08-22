@@ -21,9 +21,10 @@ create_quarto_report <- function(filename, content) {
 # Executes R code in the current session
 #
 # @param code R code to execute
+# @param _intent Brief description of what the code does
 # @returns The results of the evaluation
 # @noRd
-run_r_code <- function(code) {
+run_r_code <- function(code, `_intent` = "View code and full output") {
   # Try hard to suppress ANSI terminal formatting characters
   withr::local_envvar(NO_COLOR = 1)
   withr::local_options(rlib_interactive = FALSE, rlang_interactive = FALSE)
@@ -39,7 +40,7 @@ run_r_code <- function(code) {
     if (in_shiny() && length(markdown_output) > 0) {
       formatted_output <- htmltools::tagList(
         htmltools::tags$details(
-          htmltools::tags$summary("View code and full output"),
+          htmltools::tags$summary(`_intent`),
           htmltools::HTML(paste(markdown_output, collapse = ""))
         )
       )
