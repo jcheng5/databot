@@ -17,6 +17,7 @@ Imports:
     htmltools,
     jsonlite,
     knitr,
+    mirai,
     promises,
     R6,
     rlang,

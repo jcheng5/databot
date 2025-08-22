@@ -1,3 +1,46 @@
 .data-frame {
   font-size: 0.875em;
 }
+
+.summary-insight {
+  padding: 8px 12px;
+  background: #f0f8ff;
+  border-left: 3px solid #2196f3;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summary-insight i {
+  color: #2196f3;
+}
+
+details {
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+summary {
+  padding: 8px;
+  background: #f9f9f9;
+  cursor: pointer;
+  user-select: none;
+}
+
+summary:hover {
+  background: #f0f0f0;
+}
+
+details[open] summary {
+  border-bottom: 1px solid #ddd;
+}
+
+.code-block, .output-block {
+  margin: 8px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  overflow-x: auto;
+}

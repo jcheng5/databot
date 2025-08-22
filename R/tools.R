@@ -28,20 +28,29 @@ run_r_code <- function(code) {
   withr::local_envvar(NO_COLOR = 1)
   withr::local_options(rlib_interactive = FALSE, rlang_interactive = FALSE)
 
-  if (in_shiny()) {
-    out <- MarkdownStreamer$new(function(md_text) {
-      save_output_chunk(md_text)
-      chat_append_message(
-        "chat",
-        list(role = "assistant", content = md_text),
-        chunk = TRUE,
-        operation = "append"
+  markdown_output <- character()
+  
+  out <- MarkdownStreamer$new(function(md_text) {
+    markdown_output <<- c(markdown_output, md_text)
+  })
+  on.exit({
+    out$close()
+    
+    # Immediately append the collapsible when the tool completes
+    if (in_shiny() && length(markdown_output) > 0) {
+      formatted_output <- htmltools::tagList(
+        htmltools::tags$details(
+          htmltools::tags$summary("View code and full output"),
+          htmltools::HTML(paste(markdown_output, collapse = ""))
+        )
       )
-    })
-  } else {
-    out <- NullStreamer$new()
-  }
-  on.exit(out$close(), add = TRUE, after = FALSE)
+      
+      chat_append_message("chat", list(
+        role = "assistant",
+        content = as.character(formatted_output)
+      ))
+    }
+  }, add = TRUE, after = FALSE)
 
   # What gets returned to the LLM
   result <- list()
@@ -134,7 +143,7 @@ run_r_code <- function(code) {
   }
 
   result <- coalesce_text_outputs(result)
-
+  
   I(result)
 }
 
@@ -142,8 +151,6 @@ in_shiny <- function() {
   !is.null(shiny::getDefaultReactiveDomain())
 }
 
-# Combine consecutive text outputs into one, for better readability (for both us
-# and the model).
 coalesce_text_outputs <- function(content_list) {
   txt_buffer <- character(0)
   result_content_list <- list()
