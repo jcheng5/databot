@@ -1,3 +1,16 @@
+**NOTICE: This version of Databot is deprecated--please consider using the current version!**
+
+This is the repo for an early prototype of what became [Databot](https://positron.posit.co/databot), an AI assistant that's designed to dramatically accelerate exploratory data analysis in Python or R.
+
+Information about the current version of Databot can be found here:
+
+* [Announcement blog post](https://posit.co/blog/introducing-databot/)
+* [Databot homepage](https://positron.posit.co/databot)
+* [Databot repo](https://github.com/posit-dev/databot)
+* [Positron homepage](https://positron.posit.co)
+
+---
+
 # Databot: Data exploration assistant for R
 
 <!-- badges: start -->
