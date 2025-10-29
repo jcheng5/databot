@@ -3,7 +3,7 @@ chat_bot <- function(system_prompt = NULL, default_turns = list()) {
 
   bedrock_model <- Sys.getenv("DATABOT_BEDROCK_MODEL", "")
   if (nzchar(bedrock_model)) {
-    chat <- chat_bedrock(
+    chat <- chat_aws_bedrock(
       system_prompt,
       model = bedrock_model,
       echo = FALSE
